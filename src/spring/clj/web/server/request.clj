@@ -1,5 +1,7 @@
 (ns spring.clj.web.server.request
-  (:require [clojure.string :refer [lower-case join]])
+  (:require
+   [clojure.string :refer [lower-case join]]
+   [spring.clj.web.util.utils :refer [keyword->str]])
   (:import
    (org.springframework.web.reactive.function.server ServerRequest)
    (org.springframework.web.server ServerWebExchange)
@@ -36,7 +38,7 @@
   (-> request .getURI .getScheme keyword))
 
 (defn path-variable [name ^ServerRequest request]
-  (.pathVariable request name))
+  (->> name keyword->str (.pathVariable request)))
 
 (defn path-variables [^ServerRequest request]
   (persistent!

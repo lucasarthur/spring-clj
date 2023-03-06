@@ -5,7 +5,8 @@
   (:import
    (org.springframework.web.reactive.function.server ServerRequest)
    (org.springframework.web.server ServerWebExchange)
-   (org.springframework.http.server.reactive ServerHttpRequest)))
+   (org.springframework.http.server.reactive ServerHttpRequest)
+   (java.util Map)))
 
 (defn request->server-web-exchange ^ServerWebExchange [^ServerRequest request]
   (.exchange request))
@@ -75,6 +76,20 @@
     (fn [acc [k v]] (assoc! acc (-> k lower-case keyword) (join "," (str v))))
     (transient {})
     (.getCookies request))))
+
+(defn body->mono
+  ([^ServerRequest request] (body->mono Map request))
+  ([type ^ServerRequest request] (-> request (.bodyToMono type))))
+
+(defn body->flux
+  ([^ServerRequest request] (body->flux Map request))
+  ([type ^ServerRequest request] (-> request (.bodyToFlux type))))
+
+(defn body->form-data [^ServerRequest request]
+  (.formData request))
+
+(defn body->multipart-data [^ServerRequest request]
+  (.multipartData request))
 
 (defn request-map [^ServerRequest request]
   (let [req (-> request request->server-web-exchange exchange->http-request)]

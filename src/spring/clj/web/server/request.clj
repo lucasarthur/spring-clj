@@ -11,6 +11,9 @@
 (defn exchange->http-request ^ServerHttpRequest [^ServerWebExchange exchange]
   (.getRequest exchange))
 
+(defn request->http-request ^ServerHttpRequest [^ServerRequest request]
+  (-> request request->server-web-exchange exchange->http-request))
+
 (defn request-method [^ServerHttpRequest request]
   (-> request .getMethod .name lower-case keyword))
 
@@ -32,12 +35,30 @@
 (defn scheme [^ServerHttpRequest request]
   (-> request .getURI .getScheme keyword))
 
+(defn path-variable [name ^ServerRequest request]
+  (.pathVariable request name))
+
+(defn path-variables [^ServerRequest request]
+  (persistent!
+   (reduce
+    (fn [acc [k v]] (assoc! acc (-> k lower-case keyword) (join "," v)))
+    (transient {})
+    (.pathVariables request))))
+
 (defn query-string [^ServerHttpRequest request]
   (when-let [query-params (.getQueryParams request)]
     (->> query-params
          (map (fn [[k vs]] (map #(str k "=" %) vs)))
          (flatten)
          (join "&"))))
+
+(defn query-string-map [^ServerHttpRequest request]
+  (when-let [query-params (.getQueryParams request)]
+    (persistent!
+     (reduce
+      (fn [acc [k v]] (assoc! acc (-> k lower-case keyword) (join "," v)))
+      (transient {})
+      query-params))))
 
 (defn headers [^ServerHttpRequest request]
   (persistent!

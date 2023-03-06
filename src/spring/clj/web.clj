@@ -1,16 +1,23 @@
 (ns spring.clj.web
   (:require
-   [spring.clj.web.router-function :as rf]
-   [spring.clj.web.server.request :as req]
-   [spring.clj.web.server.response :as res]
-   [spring.clj.web.ws :as ws]
-   [reactor-core.operations :as ops]
-   [clojure.string :refer [upper-case]]
-   [clojure.tools.logging :refer [info]]
-   [spring.clj.util.sam :refer [->function]])
-  (:import
-   (org.springframework.web.reactive.socket WebSocketSession)
-   (reactor.core.publisher Flux)))
+   [spring.clj.ws]
+   [spring.clj.web.router-function :refer [all route]]
+   [spring.clj.web.server.request :refer [request-map]]
+   [spring.clj.web.server.response :refer [status content-type body-value]]
+   [clojure.tools.logging :refer [info]]))
+
+(defn -default-http-handler []
+  (all
+   (route :get "/echo" #(let [req-map (request-map %)]
+                          (->> (status :ok)
+                               (content-type :json)
+                               (body-value req-map))))
+   (route :get "/" (fn [_] (->> (status :not-implemented)
+                                (content-type :json)
+                                (body-value {:message "there is no handler installed"}))))))
+
+(defn -default-ws-handler [session]
+  (str "On thread: " (.getName (Thread/currentThread)) "\nEcho message: " session))
 
 (def http-handler (atom nil))
 (def ws-handler (atom nil))
@@ -22,26 +29,3 @@
 (defn set-websocket-handler! [new-handler]
   (info "Assigning ws handler to " new-handler)
   (swap! ws-handler (constantly new-handler)))
-
-(defn -default-http-handler []
-  (rf/and
-   (rf/route :get "/echo" #(let [req-map (req/request-map %)]
-                             (info req-map)
-                             (->> (res/status :ok)
-                                  (res/content-type :json)
-                                  (res/body-value req-map))))
-   (rf/route :get "/" #(->> (res/status :not-implemented)
-                            (res/content-type :json)
-                            (res/body-value {:message "there is no handler installed"})))))
-
-(defn -default-ws-handler [session]
-  (info "new ws session: " session)
-  (str "On thread: " (.getName (Thread/currentThread))
-       "\nEcho message: " (upper-case session)))
-
-(defn -handle-ws ^Flux [^WebSocketSession session]
-  (->> (.receive session)
-       (ops/map (-> (ws/websocket-session->map session)
-                    (@ws-handler)
-                    (ws/wrap-message-handler)
-                    (->function)))))

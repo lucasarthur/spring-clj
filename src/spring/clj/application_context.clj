@@ -7,7 +7,7 @@
    (java.util Map)
    (org.springframework.context ApplicationContext))
   (:gen-class
-   :name ^{org.springframework.stereotype.Component ""} spring.core.ClojureComponent
+   :name ^{org.springframework.stereotype.Component ""} spring.clj.clojure_component
    :state _
    :constructors {[org.springframework.context.ApplicationContext] []}
    :init component-init))

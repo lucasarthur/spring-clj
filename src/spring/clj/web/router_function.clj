@@ -13,6 +13,9 @@
 (defn or [^RouterFunction other ^RouterFunction f]
   (.or f other))
 
+(defn all [& router-functions]
+  (reduce and router-functions))
+
 (defn filter [f ^RouterFunction router]
   (.filter router (->filter-function f)))
 

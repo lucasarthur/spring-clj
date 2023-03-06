@@ -4,8 +4,9 @@
    [spring.clj.web.util.status-code :refer [http-status->code code->http-status keyword->http-status]]
    [spring.clj.web.util.media-type :as mime :refer [keyword->media-type]]
    [spring.clj.web.util.headers :as h]
-   [spring.clj.util.sam :refer [->consumer]]
-   [clojure.string :refer [lower-case join]])
+   [reactor-core.util.sam :refer [->consumer]]
+   [clojure.string :refer [lower-case join]]
+   [cheshire.core :refer [generate-string]])
   (:import
    (org.springframework.web.reactive.function.server ServerResponse ServerResponse$BodyBuilder)
    (org.reactivestreams Publisher)
@@ -27,7 +28,7 @@
   (->> (->consumer #((-> headers (h/add-headers %)))) (.headers b)))
 
 (defn body-value [data ^ServerResponse$BodyBuilder b]
-  (.bodyValue b data))
+  (->> data generate-string (.bodyValue b)))
 
 (defn body
   ([^Publisher p ^ServerResponse$BodyBuilder b] (body Map p b))

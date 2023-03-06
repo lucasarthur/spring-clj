@@ -1,5 +1,5 @@
 (ns spring.clj.web.filter-function
-  (:require [spring.clj.util.sam :refer [->function]])
+  (:require [reactor-core.util.sam :refer [->function]])
   (:import (org.springframework.web.reactive.function.server HandlerFilterFunction)))
 
 (defn ->filter-function ^HandlerFilterFunction [f]

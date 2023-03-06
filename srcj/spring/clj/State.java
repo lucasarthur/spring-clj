@@ -1,12 +1,12 @@
-package spring;
+package spring.clj;
 
 import clojure.java.api.Clojure;
 import clojure.lang.Symbol;
 import clojure.lang.Var;
 import org.springframework.context.ApplicationContext;
 
-import static spring.Utils.requireFn;
 import static java.util.Objects.nonNull;
+import static spring.clj.Utils.requireFn;
 
 public class State {
   private final ApplicationContext applicationContext;

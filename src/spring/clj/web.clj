@@ -16,9 +16,11 @@
 (def ws-handler (atom nil))
 
 (defn set-http-handler! [new-handler]
+  (info "Assigning http handler to " new-handler)
   (swap! http-handler (constantly new-handler)))
 
 (defn set-websocket-handler! [new-handler]
+  (info "Assigning ws handler to " new-handler)
   (swap! ws-handler (constantly new-handler)))
 
 (defn -default-http-handler []
@@ -43,9 +45,3 @@
                     (@ws-handler)
                     (ws/wrap-message-handler)
                     (->function)))))
-
-(defonce _
-  (do
-    (info "Applying default handlers")
-    (set-http-handler! -default-http-handler)
-    (set-websocket-handler! -default-ws-handler)))

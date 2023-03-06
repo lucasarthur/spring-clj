@@ -15,7 +15,7 @@
 (defonce state (atom {}))
 
 (defn -component-init [^ApplicationContext ctx]
-  (info "Initializing the ClojureComponent")
+  (info "Initializing the clojure component")
   (swap! state assoc :ctx ctx)
   [[] {}])
 

@@ -1,4 +1,4 @@
-package spring;
+package spring.clj;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,9 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static spring.clj.Utils.httpHandlerFn;
+import static spring.clj.Utils.websocketHandlerFn;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.nonNull;
-import static spring.Utils.websocketHandlerFn;
 
 @Configuration
 @ConfigurationProperties(prefix = "clojure")
@@ -46,6 +47,12 @@ public class InternalConfig {
 
   @Bean State state() {
     return new State(applicationContext, initSymbol);
+  }
+
+  @Bean
+  @SuppressWarnings("unchecked")
+  RouterFunction<ServerResponse> cljHttpHandler() {
+    return (RouterFunction<ServerResponse>) httpHandlerFn.invoke();
   }
 
   @Bean
